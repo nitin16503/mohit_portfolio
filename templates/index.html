@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <title>MohitJi</title>
+    {% include 'partials/head.html' %}    
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    {% include 'partials/navbar.html' %}
+
+
+    <!-- page header -->
+    <header id="home" class="header">
+        <div class="overlay"></div>
+        <div class="header-content container row">
+            <div class="col d-flex m-auto " style="flex-direction: column;">
+                <h1 class="header-title">
+                    <span class="up">HI!</span>
+                    <span class="down">I am Mohit</span>
+                </h1>
+                <p class="header-subtitle">FULLSTACK WEB DEVELOPER</p>
+                <a href="/portfolio">
+                    <button class="btn btn-primary" style="width: fit-content;">Visit My Works</button>
+
+                </a>
+
+            </div>
+            <div class="col">
+                <img class="" style="width: 65vh;" src="{% static 'imgs/index_background.png' %}" alt="" srcset="">
+
+            </div>
+        </div>
+    </header><!-- end of page header -->
+
+    <!-- about section -->
+    <section class="section pt-0" id="about">
+        <!-- container -->
+        <div class="container text-center">
+            <!-- about wrapper -->
+            <div class="about">
+                <div class="about-img-holder">
+                    <img src="{% static 'imgs/man.png' %}" class="about-img"
+                        alt="Download free bootstrap 4 landing page, free boootstrap 4 templates, Download free bootstrap 4.1 landing page, free boootstrap 4.1.1 templates, meyawo Landing page">
+                </div>
+                <div class="about-caption">
+                    <p class="section-subtitle">Who Am I ?</p>
+                    <h2 class="section-title mb-3">About Me</h2>
+                    <p>
+                        Greetings!
+
+                        I'm Mohit Sharma, a dedicated full-stack web developer with a fervent drive to create
+                        exceptional digital experiences. With extensive proficiency in Python, Django, and AIML, I
+                        specialize in crafting dynamic, user-centric websites and applications. Let's embark on a
+                        transformative journey together and turn your visions into remarkable online realities! With a
+                        keen eye for detail and a commitment to excellence, I'm here to ensure that your digital
+                        presence exceeds expectations. Let's collaborate and bring your ideas to life in the most
+                        impactful and innovative way possible!
+                    </p>
+                    <!-- <button class="btn-rounded btn btn-outline-primary mt-4">Download CV</button> -->
+                </div>
+            </div><!-- end of about wrapper -->
+        </div><!-- end of container -->
+    </section> <!-- end of about section -->
+
+    <!-- portfolio section -->
+    <section class="section" id="portfolio">
+        <div class="container text-center">
+            <p class="section-subtitle">What I Did ?</p>
+            <a href="/portfolio" class=" d-flex m-auto " style="width: fit-content;">
+                <h6 class="section-title m-auto ">Portfolio</h6>
+                <p style="margin: auto 2vh;">View All</p>
+            </a>
+            <div class="p-auto m-auto">
+                {% for project in project_data %}
+
+                <a href="/project_{{project.project_id}}" class="portfolio-card ">
+                    <img width="10vh" src="{{project.image_1}}" class="portfolio-card-img"
+                        alt="">
+                    <span class="portfolio-card-overlay">
+                        <span class="portfolio-card-caption">
+                            <h5>{{ project.project_name }}</h5>
+                        </span>
+                    </span>
+                </a>
+                {% endfor %}
+            </div>
+
+
+        </div><!-- end of container -->
+    </section> <!-- end of portfolio section -->
+
+    <!-- section -->
+    <section class="section-sm bg-primary">
+        <!-- container -->
+        <div class="container text-center text-sm-left" style="width: 90vh;">
+            <!-- row -->
+            <div class="row align-items-center">
+                <div class="col">
+                    <h6 class="title text-light">My Social Links</h6>
+                    <p class="m-0 text-light">Always feel Free to Contact & Hire me</p>
+                </div>
+                <div class="col">
+                    <div class="social-links  m-auto ">
+                        <a href="https://www.linkedin.com/in/mohit012/?profileId=ACoAAEeSFsMB3WkMEYyHnk-kDmI0eZ4JorY8CXQ" class="link"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/_.mohit_012?igsh=MWo0MHJ0aTB1Mmlvdg==" class="link"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSDZBXHRDNjNFhRnvCxpZwqkDppsLmvTrZKbzdTNXcDJvCQxJcXfQVlKmWJnmmxCHhgBfnGZ" class="link"><i class="fa-solid fa-envelope"></i></a>
+                        <a href="https://wa.me/+919650432875" class="link"> <i class="fa-brands fa-whatsapp"></i></a>
+                        <!-- <a href="javascript:void(0)" class="link"><i class="fa-brands fa-twitter"></i></a> -->
+                       
+                    </div>
+                    <!-- <button class="btn btn-lg my-font btn-light rounded">Hire Me</button> -->
+                </div>
+            </div> <!-- end of row -->
+        </div> <!-- end of container -->
+    </section> <!-- end of section -->
+
+    <!-- contact section -->
+    <section class="section" id="contact">
+        <div class="container text-center">
+            <p class="section-subtitle">How can you communicate?</p>
+            <h6 class="section-title mb-5">Contact Me</h6>
+            <!-- contact form -->
+            <form action="" class="contact-form col-md-10 col-lg-8 m-auto">
+                <div class="form-row">
+                    <div class="form-group col-sm-6">
+                        <input type="text" size="50" class="form-control" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <input type="email" class="form-control" placeholder="Enter Email" requried>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <textarea name="comment" id="comment" rows="6" class="form-control"
+                            placeholder="Write Something"></textarea>
+                    </div>
+                    <div class="form-group col-sm-12 mt-3">
+                        <input type="submit" value="Send Message" class="btn btn-outline-primary rounded">
+                    </div>
+                </div>
+            </form><!-- end of contact form -->
+        </div><!-- end of container -->
+    </section><!-- end of contact section -->
+    
+    {% include 'partials/footer.html' %}    
+
+    
+
+    <!-- core  -->
+    <script src="{% static 'vendors/jquery/jquery-3.4.1.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.bundle.js' %}"></script>
+
+    <!-- bootstrap 3 affix -->
+    <script src="{% static 'vendors/bootstrap/bootstrap.affix.js' %}"></script>
+
+    <!-- Meyawo js -->
+    <script src="{% static 'js/meyawo.js' %}"></script>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
+
+
+</body>
+
+</html>
