@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 4. Start the project in Devlopment Server
 ```
-python manage.py run server 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000
 ```
 > NOTE - We will have to edit the inbound rules in the security group of our EC2, in order to allow traffic from our particular port
 
