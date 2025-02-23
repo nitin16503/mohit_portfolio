@@ -1,0 +1,158 @@
+name: Build Testing for Push
+on:
+  workflow_dispatch:
+  push:
+    branches: "main" 
+  # pull_request:
+  #   branches: [  "main" ]
+    
+jobs:
+
+
+  Build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cache npm dependencies
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+        
+  Trivy:
+    runs-on: self-hosted
+    needs: Build
+    
+    steps:
+      - name: Trivy FS scan
+        run: |
+         trivy fs --format table --exit-code 0 --severity CRITICAL,HIGH -o fs.json .
+
+      - name: Upload Trivy Scan Report
+        uses: actions/upload-artifact@v4.6.1
+        with:
+          name: TRIVY-CODE-SCAN-REPORT
+          path: fs.json
+
+          
+  SonarQube:
+    runs-on: self-hosted
+    needs: Trivy
+  
+    steps:
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        with:
+          projectBaseDir: ./
+          args: >
+            -Dsonar.projectKey=radpretation_frontend-1
+            -Dsonar.sources=.
+            -Dsonar.exclusions=node_modules/**,build/**
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+                            
+  Docker-Build:
+      runs-on: self-hosted
+      needs: SonarQube
+      
+      steps:
+        - name: Set up QEMU   #Sets up QEMU, which is an emulator that helps build Docker images for different architectures (e.g., arm64, amd64).
+          uses: docker/setup-qemu-action@v3
+          
+        - name: Set up Docker Buildx #Enables Docker Buildx, which is an advanced builder for faster and multi-platform builds.
+          uses: docker/setup-buildx-action@v3
+          
+        - name: Setting Date
+          run: echo "IMAGE_TAG=$(date +'%d-%m-%Y')" >> $GITHUB_ENV
+        
+        - name: Build Docker Image
+          run: |
+               docker build -t radpretation-frontend-1:${{ env.IMAGE_TAG }} . 
+
+               
+  Trivy-Docker-Scan:
+      runs-on: self-hosted
+      needs: Docker-Build
+
+      steps:
+        - name: Setting Date
+          run: echo "IMAGE_TAG=$(date +'%d-%m-%Y')" >> $GITHUB_ENV
+          
+        - name: SCAN FOR HIGH/CRITICAL ISSUES 
+          uses: aquasecurity/trivy-action@0.9.2
+          with:
+            image-ref: 'radpretation-frontend-1:${{ env.IMAGE_TAG }}'
+            format: 'table'
+            exit-code: '0'
+            ignore-unfixed: true
+            vuln-type: 'os,library'
+            severity: 'CRITICAL,HIGH'
+        
+        - name: SCAN FOR MEDIUM/LOW ISSUES
+          uses: aquasecurity/trivy-action@0.9.2
+          with:
+            image-ref: 'radpretation-frontend-1:${{ env.IMAGE_TAG }}'
+            format: 'table'
+            output: "trivy-results.json"
+            exit-code: '0'  # Don't fail pipeline
+            ignore-unfixed: true
+            vuln-type: 'os,library'
+            severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+        - name: Upload Trivy Scan Report
+          uses: actions/upload-artifact@v4.6.1
+          with:
+            name: TRIVY-DOCKER-SCAN-REPORT
+            path: trivy-results.json
+
+
+  Publish-to-GHCR:
+      runs-on: self-hosted
+      needs: Trivy-Docker-Scan
+
+      steps:
+      - name: Setting Date
+        run: echo "IMAGE_TAG=$(date +'%d-%m-%Y')" >> $GITHUB_ENV
+        
+      - name: Publishing Image To GitHub Container Registry
+        uses: pmorelli92/github-container-registry-build-push@2.2.1 
+        with:
+          github-push-secret: ${{secrets.TOKEN_GITHUB}}
+          docker-image-name: radpretation-frontend-1
+          docker-image-tag: ${{env.IMAGE_TAG }}
+
+  Removing_Docker_Images:
+      runs-on: self-hosted
+      needs: Publish-to-GHCR
+      
+      steps:
+      - name: Removing Unwanted Docker Images
+        run: |
+              docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | awk '!/sonarqube|tonistiigi\/binfmt|moby\/buildkit/ {print $2}' | xargs docker rmi -f
+              sudo apt autoremove -y
+              sudo apt autoclean
+              sudo apt clean
+
+
+        
+  
+
+          
+    
+  
+  
